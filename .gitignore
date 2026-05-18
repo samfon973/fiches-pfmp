@@ -1,0 +1,25 @@
+# ============================================
+# .gitignore — Fiches PFMP
+# Fichiers locaux à NE PAS pousser sur GitHub
+# ============================================
+
+# Mémoire et notes Claude (privées)
+CLAUDE.md
+notes_pour_claude.md
+.claude/
+
+# Documentation interne (sources, guides — pas pour le public)
+referentiel-pfmp.md
+guide-markdown.md
+
+# Sauvegardes / brouillons / tests
+fiches-pfmp-*.json
+*.pdf
+
+# Système Windows / éditeurs
+Thumbs.db
+desktop.ini
+.DS_Store
+*.bak
+*.swp
+~$*
