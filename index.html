@@ -221,6 +221,14 @@ input:focus, textarea:focus, select:focus { outline: none; }
   border: 1px solid var(--border);
 }
 .backup-btn.secondary:active { background: var(--border); }
+.backup-btn-send {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 14.5px;
+  background: #059669;
+  box-shadow: 0 2px 6px rgba(5,150,105,0.25);
+}
+.backup-btn-send:active { background: #047857; }
 .btn-install-pwa {
   display: none;
   align-items: center;
@@ -1820,6 +1828,106 @@ input:focus, textarea:focus, select:focus { outline: none; }
     margin-bottom: 6pt;
   }
 
+  /* ===== FICHE VIERGE — éléments cochables et lignes vierges ===== */
+  .print-blank-banner {
+    text-align: center;
+    margin-top: 6pt;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10pt;
+    color: #B45309;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .print-blank-box {
+    display: inline-block;
+    width: 10pt;
+    height: 10pt;
+    border: 0.8pt solid #333;
+    margin-right: 4pt;
+    vertical-align: middle;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  .print-blank-val {
+    border-bottom: 0.5pt solid #888;
+    min-height: 14pt;
+    flex: 1;
+    display: inline-block;
+  }
+  .print-blank-fielddata { margin-top: 5pt; }
+  .print-blank-group { margin-bottom: 6pt; page-break-inside: avoid; }
+  .print-blank-group-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8.5pt;
+    color: #555;
+    margin-bottom: 2pt;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .print-blank-item {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    page-break-inside: avoid;
+    display: flex;
+    align-items: baseline;
+  }
+  .print-blank-item span:not(.print-blank-box) {
+    flex: 1;
+  }
+  .print-blank-2cols {
+    column-count: 2;
+    column-gap: 12pt;
+  }
+  /* Bloc matériel/logiciels compact, ne se coupe pas si possible */
+  .print-blank-mat-log-block {
+    page-break-inside: avoid;
+  }
+  .print-blank-textarea-small,
+  .print-blank-textarea,
+  .print-blank-textarea-large {
+    border: 0.5pt solid #aaa;
+    border-radius: 3pt;
+    padding: 5pt;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0pt,
+      transparent 13.5pt,
+      #d8d8d8 13.5pt,
+      #d8d8d8 14pt
+    );
+    margin-top: 3pt;
+  }
+  .print-blank-textarea-small { min-height: 45pt; }
+  .print-blank-textarea       { min-height: 70pt; }
+  .print-blank-textarea-large { min-height: 75pt; }
+
+  /* Zone "ouverte" : pas de lignes, juste un cadre léger qui se prolonge jusqu'en bas de page.
+     Saut de page automatique après → la section suivante commence sur une nouvelle page propre,
+     l'élève peut intercaler des feuilles blanches s'il manque d'espace. */
+  .print-blank-open {
+    border: 0.5pt dashed #aaa;
+    border-radius: 3pt;
+    min-height: 12cm;
+    padding: 6pt;
+    margin-top: 4pt;
+    page-break-after: always;
+  }
+  .print-blank-eval-cell {
+    text-align: center;
+    width: 30pt;
+  }
+
+  /* Signatures : doivent rester avec ce qui les précède */
+  .print-signatures {
+    page-break-inside: avoid;
+    break-before: avoid;
+    margin-top: 16pt;
+  }
+
+  /* Sections : éviter d'isoler un titre orphelin en bas de page */
+  .print-section, .print-blank-group { orphans: 3; widows: 3; }
+
   .print-signatures {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1857,8 +1965,13 @@ input:focus, textarea:focus, select:focus { outline: none; }
           <span class="backup-status-icon" id="backup-status-icon">💾</span>
           <span class="backup-status-text" id="backup-status-text">Aucune sauvegarde encore</span>
         </div>
+        <div class="backup-actions backup-actions-primary">
+          <button class="backup-btn backup-btn-send" id="btn-send-teacher" title="Envoie toutes vos fiches au professeur via WhatsApp, Mail, Drive…">
+            📤 Envoyer au professeur
+          </button>
+        </div>
         <div class="backup-actions">
-          <button class="backup-btn" id="btn-export-all" title="Télécharge un fichier .json contenant toutes vos fiches. À garder sur Drive, mail ou WhatsApp.">
+          <button class="backup-btn secondary" id="btn-export-all" title="Télécharge un fichier .json contenant toutes vos fiches. À garder sur Drive, mail ou WhatsApp.">
             💾 Sauvegarder
           </button>
           <button class="backup-btn secondary" id="btn-import-all" title="Restaure des fiches depuis un fichier .json précédemment exporté.">
@@ -2300,6 +2413,10 @@ input:focus, textarea:focus, select:focus { outline: none; }
           <span class="icon">📂</span>
           Restaurer une sauvegarde
         </button>
+        <button class="modal-action" id="home-menu-blank">
+          <span class="icon">📄</span>
+          <span>Imprimer une fiche vierge<br><span style="font-size:12px; color:var(--muted); font-weight:normal;">à remplir au stylo (sans smartphone)</span></span>
+        </button>
         <button class="modal-action" id="home-menu-tips">
           <span class="icon">💡</span>
           Voir les conseils
@@ -2341,9 +2458,9 @@ input:focus, textarea:focus, select:focus { outline: none; }
 // ============================================
 // VERSION DE L'APP — affichée sur l'accueil pour vérifier qu'on est bien sur la dernière version déployée
 // ============================================
-const APP_VERSION = '0.14.0';
-const APP_BUILD   = '2026-04-26';
-const APP_NOTES   = 'Conseils : fichier tips.md externe + rappels aléatoires (max 1 / 5 jours)';
+const APP_VERSION = '0.16.0';
+const APP_BUILD   = '2026-05-18';
+const APP_NOTES   = 'Nouveau bouton « 📤 Envoyer au professeur » sur l\'accueil (partage natif WhatsApp/Mail/Drive)';
 
 // ============================================
 // CONSEILS — popups chargés depuis tips.md à l'ouverture
@@ -5033,6 +5150,176 @@ async function buildPrintAnnexes(ficheId) {
   return html;
 }
 
+// Imprime une fiche VIERGE — toutes les options du référentiel sont listées avec une case à cocher,
+// les champs textes deviennent des lignes vides. À utiliser pour un élève sans smartphone.
+function exportBlankFiche() {
+  const box = '<span class="print-blank-box"></span>';
+
+  // Activités groupées par pôle, avec case à cocher
+  const actSection = ACTIVITES.map(g => `
+    <div class="print-blank-group">
+      <div class="print-blank-group-label">${escapeHtml(g.pole + ' — ' + g.poleLabel)}</div>
+      ${g.items.map(it => `
+        <div class="print-blank-item">${box}<span><b>${escapeHtml(it.code)}</b> — ${escapeHtml(it.label)}</span></div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const cptSection = COMPETENCES.map(g => `
+    <div class="print-blank-group">
+      <div class="print-blank-group-label">${escapeHtml(g.pole + ' — ' + g.poleLabel)}</div>
+      ${g.items.map(it => `
+        <div class="print-blank-item">${box}<span><b>${escapeHtml(it.code)}</b> — ${escapeHtml(it.label)}</span></div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const matSection = MATERIEL.map(g => `
+    <div class="print-blank-group">
+      <div class="print-blank-group-label">${escapeHtml(g.group)}</div>
+      <div class="print-blank-2cols">
+        ${g.items.map(it => `
+          <div class="print-blank-item">${box}<span>${escapeHtml(it)}</span></div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const logSection = LOGICIELS.map(g => `
+    <div class="print-blank-group">
+      <div class="print-blank-group-label">${escapeHtml(g.group)}</div>
+      <div class="print-blank-2cols">
+        ${g.items.map(it => `
+          <div class="print-blank-item">${box}<span>${escapeHtml(it)}</span></div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const evalCriteria = [
+    "J'ai compris les objectifs de l'activité",
+    "J'ai été autonome dans la réalisation",
+    "J'ai respecté les consignes et procédures",
+    "J'ai produit un travail de qualité"
+  ];
+  const evalSection = `
+    <table class="print-eval-table">
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th class="print-blank-eval-cell">1</th>
+          <th class="print-blank-eval-cell">2</th>
+          <th class="print-blank-eval-cell">3</th>
+          <th class="print-blank-eval-cell">4</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${evalCriteria.map(c => `
+          <tr>
+            <td>${escapeHtml(c)}</td>
+            <td class="print-blank-eval-cell">${box}</td>
+            <td class="print-blank-eval-cell">${box}</td>
+            <td class="print-blank-eval-cell">${box}</td>
+            <td class="print-blank-eval-cell">${box}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  const html = `
+    <div class="print-header">
+      <h1>Fiche d'activité — PFMP</h1>
+      <div class="subtitle">Bac Pro Géomètre</div>
+      <div class="school">Lycée polyvalent Georges Othily — Guyane française</div>
+      <div class="print-blank-banner">FICHE VIERGE — À COMPLÉTER À LA MAIN</div>
+    </div>
+
+    <section class="print-section">
+      <h2><span class="num">01</span>Identification</h2>
+      <div class="print-field"><span class="lbl">Nom et prénom :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Classe :</span><span class="val">
+        ${box} Seconde &nbsp;&nbsp; ${box} Première &nbsp;&nbsp; ${box} Terminale
+      </span></div>
+      <div class="print-field"><span class="lbl">Période de PFMP :</span><span class="val">du ____ / ____ / ________ &nbsp; au ____ / ____ / ________</span></div>
+      <div class="print-field"><span class="lbl">Entreprise :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Adresse :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Tuteur :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Fonction du tuteur :</span><span class="val print-blank-val"></span></div>
+    </section>
+
+    <section class="print-section">
+      <h2><span class="num">02</span>Description de l'activité</h2>
+      <div class="print-field"><span class="lbl">Titre :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Date(s) :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field col">
+        <span class="lbl">Activité(s) du référentiel — cochez :</span>
+        <div class="print-blank-fielddata">${actSection}</div>
+      </div>
+      <div class="print-field col">
+        <span class="lbl">Description détaillée :</span>
+        <div class="print-blank-open"></div>
+      </div>
+    </section>
+
+    <section class="print-section">
+      <h2><span class="num">03</span>Compétences mobilisées</h2>
+      <div class="print-field col">
+        <span class="lbl">Cochez les compétences travaillées :</span>
+        <div class="print-blank-fielddata">${cptSection}</div>
+      </div>
+      <div class="print-field col">
+        <span class="lbl">Détails des compétences mises en œuvre :</span>
+        <div class="print-blank-open"></div>
+      </div>
+    </section>
+
+    <section class="print-section print-blank-mat-log-block">
+      <h2><span class="num">04</span>Matériel & logiciels</h2>
+      <div style="font-size:9.5pt; font-weight:600; margin: 4pt 0;">Matériel utilisé :</div>
+      ${matSection}
+      <div style="font-size:9.5pt; font-weight:600; margin: 8pt 0 4pt;">Logiciels utilisés :</div>
+      ${logSection}
+    </section>
+
+    <section class="print-section">
+      <h2><span class="num">05</span>Difficultés & solutions</h2>
+      <div class="print-field col"><span class="lbl">Difficultés rencontrées :</span><div class="print-blank-textarea"></div></div>
+      <div class="print-field col"><span class="lbl">Solutions apportées :</span><div class="print-blank-textarea"></div></div>
+    </section>
+
+    <section class="print-section">
+      <h2><span class="num">06</span>Auto-évaluation</h2>
+      <div style="font-size:9.5pt; color:#555; margin-bottom:6pt; font-style:italic;">Échelle : 1 = Insuffisant · 2 = Satisfaisant · 3 = Bien · 4 = Très bien</div>
+      ${evalSection}
+      <div class="print-field col" style="margin-top:8pt;"><span class="lbl">Appréciation personnelle :</span><div class="print-blank-textarea-small"></div></div>
+    </section>
+
+    <section class="print-section">
+      <h2><span class="num">07</span>Observations du tuteur en entreprise</h2>
+      <div class="print-blank-textarea-large"></div>
+    </section>
+
+    <div class="print-signatures">
+      <div class="print-signature">
+        <div class="lbl">Date et signature de l'élève :</div>
+        <div class="line"></div>
+      </div>
+      <div class="print-signature">
+        <div class="lbl">Date et signature du tuteur :</div>
+        <div class="line"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18pt; padding:8pt 10pt; background:#FEF6E7; border:0.5pt solid #F3DFA6; border-radius:3pt; font-size:9pt; color:#7A5A13; font-style:italic;">
+      ℹ️ Pour les photos : joindre vos tirages ou clichés à la fin de la fiche, en numérotant chacun et en notant une légende sous l'image.
+    </div>
+  `;
+
+  document.getElementById('print-view').innerHTML = html;
+  setTimeout(() => window.print(), 100);
+}
+
 async function exportFiche(id) {
   const f = fiches.find(x => x.id === id);
   if (!f) return;
@@ -5198,6 +5485,7 @@ document.getElementById('btn-close').addEventListener('click', () => {
 });
 
 // Sauvegarde / Restauration (accueil) — boutons visibles dans la barre
+document.getElementById('btn-send-teacher').addEventListener('click', shareAllFiches);
 document.getElementById('btn-export-all').addEventListener('click', exportAllFiches);
 document.getElementById('btn-import-all').addEventListener('click', triggerImportFiches);
 
@@ -5213,6 +5501,7 @@ document.getElementById('modal-home-menu').addEventListener('click', (e) => {
 });
 document.getElementById('home-menu-save').addEventListener('click', () => { closeHomeMenu(); exportAllFiches(); });
 document.getElementById('home-menu-restore').addEventListener('click', () => { closeHomeMenu(); triggerImportFiches(); });
+document.getElementById('home-menu-blank').addEventListener('click', () => { closeHomeMenu(); exportBlankFiche(); });
 document.getElementById('home-menu-tips').addEventListener('click', () => { closeHomeMenu(); showLatestTipManually(); });
 document.getElementById('home-menu-update').addEventListener('click', () => { closeHomeMenu(); checkForUpdates(); });
 document.getElementById('import-file-input').addEventListener('change', (e) => {
