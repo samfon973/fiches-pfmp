@@ -281,6 +281,172 @@ input:focus, textarea:focus, select:focus { outline: none; }
 
 .fiches-list { display: flex; flex-direction: column; gap: 10px; }
 
+/* Toolbar : recherche + groupement */
+.fiches-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.fiches-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.fiches-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.fiches-search {
+  flex: 1;
+  width: 100%;
+  padding: 10px 36px 10px 34px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  -webkit-appearance: none;
+}
+.fiches-search:focus { outline: none; border-color: var(--primary); }
+.fiches-search-clear {
+  position: absolute;
+  right: 6px;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.fiches-search-wrap.has-text .fiches-search-clear { display: flex; }
+.fiches-search-clear:active { background: var(--border); }
+.fiches-groupby-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fiches-groupby-label {
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fiches-groupby {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+/* Métadonnées de la fiche (identité élève + PFMP + classe) sous le titre */
+.fiche-card-identity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.fiche-card-identity .ident-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fiche-card-identity .ident-eleve {
+  color: var(--text);
+  font-weight: 600;
+}
+.fiche-card-identity .ident-pfmp {
+  background: #DBEAFE;
+  color: #1E40AF;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 11.5px;
+}
+.fiche-card-identity .ident-classe {
+  font-style: italic;
+}
+
+/* Section de groupement (pliable) */
+.fiches-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.fiches-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.fiches-group.collapsed .fiches-group-head { border-bottom-color: transparent; }
+.fiches-group-head:active { background: var(--border); }
+.fiches-group-chev {
+  font-size: 12px;
+  color: var(--muted);
+  width: 14px;
+  transition: transform .2s;
+}
+.fiches-group.collapsed .fiches-group-chev { transform: rotate(-90deg); }
+.fiches-group-title {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--text);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fiches-group-title .group-sub {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+.fiches-group-count {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.fiches-group-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fiches-group.collapsed .fiches-group-body { display: none; }
+.fiches-empty-search {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
 .fiche-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1988,6 +2154,25 @@ input:focus, textarea:focus, select:focus { outline: none; }
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
         </button>
       </div>
+
+      <!-- BARRE DE RECHERCHE + SELECTEUR DE GROUPEMENT (vue accueil) -->
+      <div class="fiches-toolbar" id="fiches-toolbar" style="display:none;">
+        <div class="fiches-search-wrap">
+          <span class="fiches-search-icon">🔍</span>
+          <input type="search" id="fiches-search" class="fiches-search" placeholder="Rechercher par nom, prénom, titre, entreprise…" autocomplete="off">
+          <button type="button" class="fiches-search-clear" id="fiches-search-clear" aria-label="Effacer" title="Effacer">×</button>
+        </div>
+        <div class="fiches-groupby-wrap">
+          <label for="fiches-groupby" class="fiches-groupby-label">Grouper :</label>
+          <select id="fiches-groupby" class="fiches-groupby">
+            <option value="none">Aucun (par date)</option>
+            <option value="eleve">Par élève</option>
+            <option value="pfmp">Par PFMP</option>
+            <option value="classe">Par classe</option>
+          </select>
+        </div>
+      </div>
+
       <div id="fiches-list" class="fiches-list"></div>
       <div id="empty-state" class="empty-state" style="display:none;">
         <div class="empty-state-icon">◰</div>
@@ -2026,9 +2211,15 @@ input:focus, textarea:focus, select:focus { outline: none; }
         <h2 class="page-title">Identification</h2>
         <p class="page-subtitle">Renseignez vos informations personnelles et celles de votre lieu de stage.</p>
 
-        <div class="field">
-          <label class="field-label" for="f-nom">Nom et prénom</label>
-          <input class="input" id="f-nom" data-key="nom" type="text" autocomplete="name">
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="f-prenom">Prénom</label>
+            <input class="input" id="f-prenom" data-key="prenom" type="text" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-nom">Nom de famille</label>
+            <input class="input" id="f-nom" data-key="nom" type="text" autocomplete="family-name">
+          </div>
         </div>
 
         <div class="field">
@@ -2041,6 +2232,20 @@ input:focus, textarea:focus, select:focus { outline: none; }
             <input type="radio" name="classe" id="cl-term" value="Terminale" data-key="classe">
             <label for="cl-term">Terminale</label>
           </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="f-pfmp-num">Numéro de PFMP</label>
+          <select class="input" id="f-pfmp-num" data-key="numeroPfmp">
+            <option value="">— Choisir —</option>
+            <option value="01">PFMP 01</option>
+            <option value="02">PFMP 02</option>
+            <option value="03">PFMP 03</option>
+            <option value="04">PFMP 04</option>
+            <option value="05">PFMP 05</option>
+            <option value="06">PFMP 06</option>
+            <option value="autre">Autre</option>
+          </select>
         </div>
 
         <div class="field-row">
@@ -2458,9 +2663,9 @@ input:focus, textarea:focus, select:focus { outline: none; }
 // ============================================
 // VERSION DE L'APP — affichée sur l'accueil pour vérifier qu'on est bien sur la dernière version déployée
 // ============================================
-const APP_VERSION = '0.16.0';
-const APP_BUILD   = '2026-05-18';
-const APP_NOTES   = 'Nouveau bouton « 📤 Envoyer au professeur » sur l\'accueil (partage natif WhatsApp/Mail/Drive)';
+const APP_VERSION = '0.17.0';
+const APP_BUILD   = '2026-05-26';
+const APP_NOTES   = 'Identification : Prénom + Nom séparés, n° de PFMP. Accueil : nom de l\'élève visible, recherche et groupement par élève/PFMP/classe.';
 
 // ============================================
 // CONSEILS — popups chargés depuis tips.md à l'ouverture
@@ -2765,7 +2970,8 @@ const LOGICIELS = [
 const STORAGE_KEY = 'pfmp-fiches-v3';
 
 const DEFAULT_FICHE_DATA = {
-  nom: '', classe: '', periodeDebut: '', periodeFin: '',
+  nom: '', prenom: '', classe: '', numeroPfmp: '',
+  periodeDebut: '', periodeFin: '',
   entreprise: '', adresseEntreprise: '', tuteurNom: '', tuteurFonction: '',
   titreActivite: '', datesRealisation: '',
   activites: [],      // codes : ['A1.1', 'A2.3', ...]
@@ -2839,13 +3045,44 @@ function formatDateInput(iso) {
 }
 
 // ============================================
+// IDENTITÉ ÉLÈVE — helpers
+// ============================================
+// Renvoie « Prénom NOM » ou ce qu'il y a de dispo. Si rien n'est rempli → ''.
+// Compatibilité ascendante : avant v0.17, le champ 'nom' contenait souvent prénom+nom collés.
+function ficheStudentName(fiche) {
+  const d = fiche.data || {};
+  const pre = (d.prenom || '').trim();
+  const fam = (d.nom || '').trim();
+  if (pre && fam) return pre + ' ' + fam.toUpperCase();
+  if (pre) return pre;
+  if (fam) return fam;
+  return '';
+}
+// Clé canonique pour regrouper deux fiches sous le même élève
+// (insensible à la casse + espaces, et combine prénom + nom).
+function ficheStudentKey(fiche) {
+  const name = ficheStudentName(fiche);
+  return name ? name.toLocaleLowerCase().replace(/\s+/g, ' ').trim() : '';
+}
+// Libellé PFMP joli pour l'affichage : '02' → 'PFMP 02'
+function ficheLabelPfmp(fiche) {
+  const n = ((fiche.data && fiche.data.numeroPfmp) || '').trim();
+  if (!n) return '';
+  if (n === 'autre') return 'PFMP (autre)';
+  return 'PFMP ' + n;
+}
+
+// ============================================
 // COMPLETION %
 // ============================================
 function completionPct(fiche) {
   const d = fiche.data;
   const has = (arr) => Array.isArray(arr) && arr.length > 0;
+  // On compte (prenom || nom) comme un seul champ identité pour ne pas pénaliser
+  // les anciennes fiches qui avaient juste « Nom et prénom » réuni.
+  const identite = (d.prenom || d.nom) ? 'ok' : '';
   const fields = [
-    d.nom, d.classe, d.entreprise, d.tuteurNom,
+    identite, d.classe, d.numeroPfmp, d.entreprise, d.tuteurNom,
     d.titreActivite, d.descriptionDetaillee,
     has(d.activites) ? 'ok' : '',
     has(d.competences) ? 'ok' : '',
@@ -3107,10 +3344,114 @@ function persistAndRefresh(fiche, field) {
 // ============================================
 // HOME SCREEN RENDER
 // ============================================
+// Préférences UI persistées (recherche + groupement)
+const HOME_PREFS_KEY = 'pfmp-home-prefs-v1';
+function loadHomePrefs() {
+  try { return JSON.parse(localStorage.getItem(HOME_PREFS_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+}
+function saveHomePrefs(prefs) {
+  try { localStorage.setItem(HOME_PREFS_KEY, JSON.stringify(prefs)); } catch (e) {}
+}
+let _homePrefs = loadHomePrefs();
+let _homeSearch = '';
+// État ouvert/replié des groupes, par valeur de groupBy
+const _homeCollapsedGroups = { eleve: new Set(), pfmp: new Set(), classe: new Set() };
+
+// Date utilisée pour trier une fiche : 1) début de PFMP, 2) updatedAt, 3) createdAt
+function ficheSortDate(f) {
+  if (f.data && f.data.periodeDebut) return new Date(f.data.periodeDebut).getTime();
+  if (f.updatedAt) return new Date(f.updatedAt).getTime();
+  if (f.createdAt) return new Date(f.createdAt).getTime();
+  return 0;
+}
+
+// Filtre par recherche : nom, prénom, classe, PFMP, titre, entreprise
+function ficheMatchesSearch(f, query) {
+  if (!query) return true;
+  const q = query.toLocaleLowerCase().trim();
+  const d = f.data || {};
+  const haystack = [
+    d.nom, d.prenom, d.classe, d.numeroPfmp,
+    f.title, d.titreActivite, d.entreprise, d.tuteurNom
+  ].filter(Boolean).join(' ').toLocaleLowerCase();
+  return haystack.includes(q);
+}
+
+// Construction des groupes : retourne [{key, label, sub, fiches[]}] selon groupBy
+function buildFicheGroups(fichesArr, groupBy) {
+  if (groupBy === 'none' || !groupBy) return null;
+  const map = new Map(); // key → {key, label, sub, fiches}
+  fichesArr.forEach(f => {
+    let key = '', label = '', sub = '';
+    if (groupBy === 'eleve') {
+      key = ficheStudentKey(f) || '__unknown__';
+      label = ficheStudentName(f) || 'Élève non renseigné';
+      sub = (f.data && f.data.classe) ? f.data.classe : '';
+    } else if (groupBy === 'pfmp') {
+      const n = ((f.data && f.data.numeroPfmp) || '').trim();
+      key = n || '__nopfmp__';
+      label = n ? ficheLabelPfmp(f) : 'Sans numéro de PFMP';
+    } else if (groupBy === 'classe') {
+      const c = ((f.data && f.data.classe) || '').trim();
+      key = c || '__noclasse__';
+      label = c || 'Classe non renseignée';
+    }
+    if (!map.has(key)) map.set(key, { key, label, sub, fiches: [] });
+    map.get(key).fiches.push(f);
+  });
+  // Tri des groupes
+  const groups = [...map.values()];
+  groups.sort((a, b) => {
+    // Toujours mettre les groupes "inconnus" à la fin
+    if (a.key.startsWith('__') && !b.key.startsWith('__')) return 1;
+    if (!a.key.startsWith('__') && b.key.startsWith('__')) return -1;
+    return a.label.localeCompare(b.label, 'fr', { sensitivity: 'base', numeric: true });
+  });
+  // Tri des fiches au sein d'un groupe (date de stage descendante)
+  groups.forEach(g => g.fiches.sort((a, b) => ficheSortDate(b) - ficheSortDate(a)));
+  return groups;
+}
+
+// Génère le HTML d'une carte de fiche
+function ficheCardHtml(f) {
+  const pct = completionPct(f);
+  const name = ficheStudentName(f);
+  const pfmp = ficheLabelPfmp(f);
+  const classe = (f.data && f.data.classe) || '';
+  const titleHtml = f.title
+    ? escapeHtml(f.title)
+    : '<span style="color:var(--muted);font-style:italic;">Sans titre</span>';
+  const identityBits = [];
+  if (name) identityBits.push('<span class="ident-chip ident-eleve">' + escapeHtml(name) + '</span>');
+  if (pfmp) identityBits.push('<span class="ident-chip ident-pfmp">' + escapeHtml(pfmp) + '</span>');
+  if (classe) identityBits.push('<span class="ident-chip ident-classe">' + escapeHtml(classe) + '</span>');
+  const identityHtml = identityBits.length
+    ? '<div class="fiche-card-identity">' + identityBits.join('') + '</div>'
+    : '';
+  return `
+    <div class="fiche-card" data-id="${f.id}">
+      <div class="fiche-card-head">
+        <div class="fiche-card-title">${titleHtml}</div>
+        <button class="fiche-menu-btn" data-menu="${f.id}" aria-label="Options">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+      </div>
+      ${identityHtml}
+      <div class="fiche-card-meta">
+        <span>${formatDate(f.updatedAt)}</span>
+        <span>${pct}% complété</span>
+      </div>
+      <div class="fiche-progress-bar"><div class="fiche-progress-fill" style="width:${pct}%"></div></div>
+    </div>
+  `;
+}
+
 function renderHome() {
   const list = document.getElementById('fiches-list');
   const empty = document.getElementById('empty-state');
   const count = document.getElementById('fiches-count');
+  const toolbar = document.getElementById('fiches-toolbar');
 
   renderBackupBar();
 
@@ -3118,33 +3459,64 @@ function renderHome() {
 
   if (fiches.length === 0) {
     list.innerHTML = '';
+    if (toolbar) toolbar.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
+  // Toolbar visible dès qu'il y a >= 3 fiches (sinon pas vraiment utile)
+  if (toolbar) toolbar.style.display = fiches.length >= 3 ? '' : 'none';
 
-  const sorted = [...fiches].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-  list.innerHTML = sorted.map(f => {
-    const pct = completionPct(f);
-    const title = f.title || '<span style="color:var(--muted);font-style:italic;">Sans titre</span>';
-    return `
-      <div class="fiche-card" data-id="${f.id}">
-        <div class="fiche-card-head">
-          <div class="fiche-card-title">${escapeHtml(f.title) || '<span style="color:var(--muted);font-style:italic;">Sans titre</span>'}</div>
-          <button class="fiche-menu-btn" data-menu="${f.id}" aria-label="Options">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-          </button>
-        </div>
-        <div class="fiche-card-meta">
-          <span>${formatDate(f.updatedAt)}</span>
-          <span>${pct}% complété</span>
-        </div>
-        <div class="fiche-progress-bar"><div class="fiche-progress-fill" style="width:${pct}%"></div></div>
-      </div>
-    `;
-  }).join('');
+  // Filtrage recherche
+  const filtered = fiches.filter(f => ficheMatchesSearch(f, _homeSearch));
 
-  // click handlers
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="fiches-empty-search">Aucune fiche ne correspond à « ' +
+      escapeHtml(_homeSearch) + ' ».</div>';
+    return;
+  }
+
+  const groupBy = _homePrefs.groupBy || 'none';
+  const groups = buildFicheGroups(filtered, groupBy);
+
+  if (!groups) {
+    // Vue plate : tri par date (PFMP début, sinon updatedAt)
+    const sorted = [...filtered].sort((a, b) => ficheSortDate(b) - ficheSortDate(a));
+    list.innerHTML = sorted.map(ficheCardHtml).join('');
+  } else {
+    // Vue groupée
+    const collapsedSet = _homeCollapsedGroups[groupBy] || new Set();
+    list.innerHTML = groups.map(g => {
+      const isCollapsed = collapsedSet.has(g.key);
+      const subHtml = g.sub ? '<span class="group-sub">· ' + escapeHtml(g.sub) + '</span>' : '';
+      return `
+        <div class="fiches-group${isCollapsed ? ' collapsed' : ''}" data-group-key="${escapeHtml(g.key)}">
+          <div class="fiches-group-head" data-group-toggle="${escapeHtml(g.key)}">
+            <span class="fiches-group-chev">▾</span>
+            <div class="fiches-group-title">${escapeHtml(g.label)}${subHtml}</div>
+            <span class="fiches-group-count">${g.fiches.length}</span>
+          </div>
+          <div class="fiches-group-body">
+            ${g.fiches.map(ficheCardHtml).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Toggle des groupes
+    list.querySelectorAll('[data-group-toggle]').forEach(head => {
+      head.addEventListener('click', () => {
+        const key = head.dataset.groupToggle;
+        const set = _homeCollapsedGroups[groupBy];
+        if (!set) return;
+        if (set.has(key)) set.delete(key);
+        else set.add(key);
+        head.closest('.fiches-group').classList.toggle('collapsed');
+      });
+    });
+  }
+
+  // click handlers cartes
   list.querySelectorAll('.fiche-card').forEach(card => {
     card.addEventListener('click', (e) => {
       if (e.target.closest('.fiche-menu-btn')) return;
@@ -5237,9 +5609,13 @@ function exportBlankFiche() {
 
     <section class="print-section">
       <h2><span class="num">01</span>Identification</h2>
-      <div class="print-field"><span class="lbl">Nom et prénom :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Prénom :</span><span class="val print-blank-val"></span></div>
+      <div class="print-field"><span class="lbl">Nom de famille :</span><span class="val print-blank-val"></span></div>
       <div class="print-field"><span class="lbl">Classe :</span><span class="val">
         ${box} Seconde &nbsp;&nbsp; ${box} Première &nbsp;&nbsp; ${box} Terminale
+      </span></div>
+      <div class="print-field"><span class="lbl">Numéro de PFMP :</span><span class="val">
+        ${box} 01 &nbsp; ${box} 02 &nbsp; ${box} 03 &nbsp; ${box} 04 &nbsp; ${box} 05 &nbsp; ${box} 06 &nbsp; ${box} autre
       </span></div>
       <div class="print-field"><span class="lbl">Période de PFMP :</span><span class="val">du ____ / ____ / ________ &nbsp; au ____ / ____ / ________</span></div>
       <div class="print-field"><span class="lbl">Entreprise :</span><span class="val print-blank-val"></span></div>
@@ -5369,8 +5745,8 @@ async function exportFiche(id) {
 
     <section class="print-section">
       <h2><span class="num">01</span>Identification</h2>
-      <div class="print-field"><span class="lbl">Nom et prénom :</span><span class="val">${escapeHtml(d.nom)}</span></div>
-      <div class="print-field"><span class="lbl">Classe :</span><span class="val">${escapeHtml(d.classe)}</span></div>
+      <div class="print-field"><span class="lbl">Nom et prénom :</span><span class="val">${escapeHtml(ficheStudentName(f))}</span></div>
+      <div class="print-field"><span class="lbl">Classe :</span><span class="val">${escapeHtml(d.classe)}${d.numeroPfmp ? ' — ' + escapeHtml(ficheLabelPfmp(f)) : ''}</span></div>
       <div class="print-field"><span class="lbl">Période de PFMP :</span><span class="val">du ${formatDateInput(d.periodeDebut)} au ${formatDateInput(d.periodeFin)}</span></div>
       <div class="print-field"><span class="lbl">Entreprise :</span><span class="val">${escapeHtml(d.entreprise)}</span></div>
       <div class="print-field"><span class="lbl">Adresse :</span><span class="val">${escapeHtml(d.adresseEntreprise)}</span></div>
@@ -5488,6 +5864,45 @@ document.getElementById('btn-close').addEventListener('click', () => {
 document.getElementById('btn-send-teacher').addEventListener('click', shareAllFiches);
 document.getElementById('btn-export-all').addEventListener('click', exportAllFiches);
 document.getElementById('btn-import-all').addEventListener('click', triggerImportFiches);
+
+// ============================================
+// HOME — barre de recherche + sélecteur de groupement
+// ============================================
+(function wireHomeToolbar() {
+  const searchInput = document.getElementById('fiches-search');
+  const searchClear = document.getElementById('fiches-search-clear');
+  const searchWrap = searchInput && searchInput.closest('.fiches-search-wrap');
+  const groupBySelect = document.getElementById('fiches-groupby');
+  if (!searchInput || !groupBySelect) return;
+
+  // Init valeur du select à partir des prefs
+  groupBySelect.value = (_homePrefs && _homePrefs.groupBy) || 'none';
+
+  // Debounce simple pour le filtrage recherche
+  let _searchTimer = null;
+  searchInput.addEventListener('input', () => {
+    const val = searchInput.value;
+    if (searchWrap) searchWrap.classList.toggle('has-text', !!val);
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => {
+      _homeSearch = val;
+      renderHome();
+    }, 150);
+  });
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    if (searchWrap) searchWrap.classList.remove('has-text');
+    _homeSearch = '';
+    renderHome();
+    searchInput.focus();
+  });
+
+  groupBySelect.addEventListener('change', () => {
+    _homePrefs.groupBy = groupBySelect.value;
+    saveHomePrefs(_homePrefs);
+    renderHome();
+  });
+})();
 
 // Menu ⋮ de l'accueil (sauvegarde + restauration uniquement)
 // Le partage natif a été retiré car non fiable sur Chrome Android 10

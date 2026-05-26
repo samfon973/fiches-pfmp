@@ -13,7 +13,10 @@ referentiel-pfmp.md
 guide-markdown.md
 
 # Sauvegardes / brouillons / tests
-fiches-pfmp-*.json
+# Ignore tous les .json à la racine (sauvegardes d'élèves, exports...)
+# SAUF manifest.json qui doit aller sur GitHub
+/*.json
+!/manifest.json
 *.pdf
 
 # Système Windows / éditeurs
